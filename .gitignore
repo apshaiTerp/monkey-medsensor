@@ -1,0 +1,10 @@
+# Maven project files
+.classpath
+.project
+.settings
+
+# End state and helper files
+.fbprefs
+*.sh
+.DS_Store
+
