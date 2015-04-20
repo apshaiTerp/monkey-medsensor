@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Monkey MedSensor - Monitoring Station</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+  <script src="https://www.google.com/jsapi"></script>
+
+  <link href="css/monkey.css" rel="stylesheet">
+  <link href='http://fonts.googleapis.com/css?family=Ubuntu' rel='stylesheet' type='text/css'>
+</head>
+
+<body>
+   <nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand">Monkey MedSensor</a>
+      </div>
+      <div id="navbar" class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><img src="img/curiousgeorge.png" alt=""></li>
+          <li><a>Because sometimes people are just a little too curious</a></li>
+        </ul>
+      </div><!--/.navbar-collapse -->
+    </div>
+  </nav>
+
+  <div>
+    <br/><br/><br/><br/>
+  </div>
+  <div class="container-fluid">
+    <div id="table-div"></div>
+  </div>
+
+  <div class="container-fluid">
+    <div id="chart-pulse" style="width: 100%;"></div>
+    <div id="chart-bp" style="width: 100%;"></div>
+    <div id="chart-temp" style="width: 100%;"></div>
+    <div id="chart-o2Sat" style="width: 100%;"></div>
+  </div>
+
+  <script>//<![CDATA[ 
+  $(document).ready(function() {
+      localStorage.clear();
+      localStorage.removeItem("livedata");
+      localStorage.removeItem("histPatientID");
+      localStorage.removeItem("histTimeSlice");
+
+      function populateTable() {
+        var liveURL = "http://actestnodered.mybluemix.net/live/patient";
+
+        $.ajax({
+          url: liveURL,
+          type: 'GET',
+          success: function (data) {
+            var results = data['livedata'];
+
+            localStorage.setItem("livedata", JSON.stringify(results));
+
+            var tableBlock = '<table class="table table-hover"><thead><tr><th>Patient ID</th><th>Heart Rate</th><th>Blood Pressure</th><th>Temperature</th><th>O2 Saturation</th><th></th></tr></thead><tbody>';
+
+            for (var pos = 0; pos < results.length; pos++) {
+              var curRow = results[pos];
+              tableBlock = tableBlock + '<tr id="tablerow' + pos + '"><td>' + curRow['patientID'] + '</td><td>' + curRow['pulse'] + '</td><td>' + curRow['systolicBP'] + ' / ' + curRow['diastolicBP'] + '</td><td>' + curRow['temp'] + '</td><td>' + curRow['o2Sat'] + '</td><td><button type="button" id="button' + pos + '" class="btn btn-xs btn-primary" >View History</button></td></tr>';
+            }
+            tableBlock = tableBlock + '</tbody></table>';
+
+            document.getElementById('table-div').innerHTML = tableBlock;
+
+            if (results.length >= 1) {
+              document.getElementById("tablerow0").onclick = function() {
+                var doStuff = displayPatientCharts(0);
+              };
+            }
+            if (results.length >= 2) {
+              document.getElementById("tablerow1").onclick = function() {
+                var doStuff = displayPatientCharts(1);
+              };
+            }
+            if (results.length >= 3) {
+              document.getElementById("tablerow2").onclick = function() {
+                var doStuff = displayPatientCharts(2);
+              };
+            }
+            if (results.length >= 4) {
+              document.getElementById("tablerow3").onclick = function() {
+                var doStuff = displayPatientCharts(3);
+              };
+            }
+            if (results.length >= 5) {
+              document.getElementById("tablerow4").onclick = function() {
+                var doStuff = displayPatientCharts(4);
+              };
+            }
+            if (results.length >= 6) {
+              document.getElementById("tablerow5").onclick = function() {
+                var doStuff = displayPatientCharts(5);
+              };
+            }
+            if (results.length >= 7) {
+              document.getElementById("tablerow6").onclick = function() {
+                var doStuff = displayPatientCharts(6);
+              };
+            }
+            if (results.length >= 8) {
+              document.getElementById("tablerow7").onclick = function() {
+                var doStuff = displayPatientCharts(7);
+              };
+            }
+            if (results.length >= 9) {
+              document.getElementById("tablerow8").onclick = function() {
+                var doStuff = displayPatientCharts(8);
+              };
+            }
+            if (results.length >= 10) {
+              document.getElementById("tablerow9").onclick = function() {
+                var doStuff = displayPatientCharts(9);
+              };
+            }
+            
+          },
+          error: function (request, status, error) {
+            console.log("Something with the call failed!");
+          }
+        });
+      }
+      var auto_refresh = setInterval(populateTable, 1000);
+      populateTable();
+    });
+
+    function displayPatientCharts(patientIndex) {
+      var livedata = JSON.parse(localStorage.getItem("livedata"));
+      var curRow   = livedata[patientIndex]
+      console.log("Time to load the chart for " + curRow['patientID']);
+
+      localStorage.setItem("histPatientID", curRow['patientID']);
+      localStorage.setItem("histTimeSlice", 12);
+
+      populateChart();
+    }
+
+    function populateChart() {
+      var hourOffset = (new Date()).getTimezoneOffset() / 60;
+      var patientID  = localStorage.getItem("histPatientID");
+      var timeSlice  = localStorage.getItem("histTimeSlice");
+
+      console.log("PatientID: " + patientID);
+      console.log("timeSlice: " + timeSlice);
+
+      var liveURL = "http://actestnodered.mybluemix.net/hist/patient?patientID=" + patientID + "&time=" + timeSlice + "&offset=" + hourOffset;
+      //var liveURL = "http://actestnodered.mybluemix.net/hist/patient?patientID=Curious George&time=6&offset=5";
+
+      console.log(liveURL);
+
+      $.ajax({
+        url: liveURL,
+        type: 'GET',
+        success: function (data) {
+          var results = data['histdata'];
+
+          console.log("Total Results Size: " + results.length);
+
+          var dataPulse = new google.visualization.DataTable();
+          var dataBP    = new google.visualization.DataTable();
+          var dataTemp  = new google.visualization.DataTable();
+          var dataO2Sat = new google.visualization.DataTable();
+
+          dataPulse.addColumn('datetime', 'Time');
+          dataPulse.addColumn('number', 'Heart Rate');
+
+          dataBP.addColumn('datetime', 'Time');
+          dataBP.addColumn('number', 'Systolic BP');
+          dataBP.addColumn('number', 'Diastolic BP');
+
+          dataTemp.addColumn('datetime', 'Time');
+          dataTemp.addColumn('number', 'Temperature');
+
+          dataO2Sat.addColumn('datetime', 'Time');
+          dataO2Sat.addColumn('number', 'O2 Sat %');
+
+          $.each(results, function(i, row) {
+            var stringDate = row.time;
+            stringDate = stringDate.replace(" ", "T");
+            var newDate = new Date(stringDate);
+            newDate.setMinutes(newDate.getMinutes() + newDate.getTimezoneOffset());
+
+            dataPulse.addRow([newDate, row.pulse]);
+            dataBP.addRow([newDate, row.systolicBP, row.diastolicBP]);
+            dataTemp.addRow([newDate, parseFloat(row.temp)]);
+            dataO2Sat.addRow([newDate, parseFloat(row.o2Sat)]);
+          });
+
+          var chartPulse = new google.visualization.LineChart($('#chart-pulse').get(0));
+          chartPulse.draw(dataPulse, { title: 'Heart Beat', width: 800, height: 150, backgroundColor: { fill:'transparent' } });
+
+          var chartBP = new google.visualization.LineChart($('#chart-bp').get(0));
+          chartBP.draw(dataBP, { title: 'Blood Pressure', width: 800, height: 150, backgroundColor: { fill:'transparent' } });
+          
+          var chartTemp = new google.visualization.LineChart($('#chart-temp').get(0));
+          chartTemp.draw(dataTemp, { title: 'Temperature', width: 800, height: 150, backgroundColor: { fill:'transparent' } });
+
+          var chartO2Sat = new google.visualization.LineChart($('#chart-o2Sat').get(0));
+          chartO2Sat.draw(dataO2Sat, { title: 'O2 Sat %', width: 800, height: 150, backgroundColor: { fill:'transparent' } });
+        },
+        error: function (request, status, error) {
+          alert("It failed!");
+        }
+      });
+    };
+
+    // load chart lib
+    google.load('visualization', '1', {
+      packages: ['corechart']
+    });
+
+
+  </script>
+
+</body>
+</html>
