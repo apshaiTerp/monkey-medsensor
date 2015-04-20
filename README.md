@@ -7,6 +7,9 @@ Our team consists of Adam Carter, Mike Rzepka, Jim Dowling, and Lakshmana Dheera
 
 Our project is the Monkey MedSensor.
 
+A Link to our Demo Video can be found here:  http://youtu.be/ANedFNE19qU
+Slides for our Presentation can be found under the main folder for this repository.
+
 #Components
 Our system was built using three primary components:
 - A Java-based MQTT Messaging Device that transmits some basic vital stat information (heart rate, blood pressure, temperature, and O2 Saturation %) once per second.
