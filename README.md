@@ -25,7 +25,15 @@ Code for this device can be found in the src/mqtt-device-test project folder.
 #Node-Red
 Our Device Simulators all feed into our Node-Red configuration, which filters the messages as they arrive.  The latest message is pared down and sent to our live collection.  Once every 60 seconds, we write out a historical row to maintain history.  Also, a remove message is supported to remove a patient from the live table when their device shuts down.
 
+You can view the Node-Red configuration at http://actestnodered.mybluemix.net/red/.
+
 We added additional REST endpoints to provide access to our live and historical data.
+
+An example of the live data can be found here:
+http://actestnodered.mybluemix.net/live/patient.
+
+An example of the historical data can be found here:
+http://actestnodered.mybluemix.net/hist/patient?patientID=Curious%20George&time=6&offset=5.
 
 The JSON export of the Node-Red configuration can be found under src/Node-Red
 
