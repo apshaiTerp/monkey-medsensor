@@ -7,7 +7,8 @@ Our team consists of Adam Carter, Mike Rzepka, Jim Dowling, and Lakshmana Dheera
 
 Our project is the Monkey MedSensor.
 
-A Link to our Demo Video can be found here:  http://youtu.be/ANedFNE19qU
+A Link to our Demo Video can be found here:  http://youtu.be/ANedFNE19qU.
+
 Slides for our Presentation can be found under the main folder for this repository.
 
 #Components
