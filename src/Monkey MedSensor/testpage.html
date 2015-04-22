@@ -40,10 +40,36 @@
   </div>
 
   <div class="container-fluid">
-    <div id="chart-pulse" style="width: 100%;"></div>
-    <div id="chart-bp" style="width: 100%;"></div>
-    <div id="chart-temp" style="width: 100%;"></div>
-    <div id="chart-o2Sat" style="width: 100%;"></div>
+    <div class="row" id="window-row">
+      <div class="col-xs-12">
+        Choose Historical Data Window:
+        <div id="hour-window-grp">
+          <div class="btn-group" data-toggle="buttons">
+            <label class="btn btn-default">
+              <input type="radio" name="hours-group" id="hour-1-btn" onchange="clickHour1Btn()" value="One Hour" /> One Hour
+            </label> 
+            <label class="btn btn-default">
+              <input type="radio" name="hours-group" id="hour-3-btn" onchange="clickHour3Btn()" value="Three Hours" /> Three Hours
+            </label> 
+            <label class="btn btn-default active">
+              <input type="radio" name="hours-group" id="hour-6-btn" checked="checked" onchange="clickHour6Btn()" value="Six Hours" /> Six Hours
+            </label> 
+            <label class="btn btn-default">
+              <input type="radio" name="hours-group" id="hour-12-btn" onchange="clickHour12Btn()" value="Twelve Hours" /> Twelve Hours
+            </label> 
+            <label class="btn btn-default">
+              <input type="radio" name="hours-group" id="hour-24-btn" onchange="clickHour24Btn()" value="Twenty-Four Hours" /> Twenty-Four Hours
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div id="chart-pulse" style="width: 100%;"></div>
+      <div id="chart-bp" style="width: 100%;"></div>
+      <div id="chart-temp" style="width: 100%;"></div>
+      <div id="chart-o2Sat" style="width: 100%;"></div>
+    </div>
   </div>
 
   <script>//<![CDATA[ 
@@ -52,6 +78,8 @@
       localStorage.removeItem("livedata");
       localStorage.removeItem("histPatientID");
       localStorage.removeItem("histTimeSlice");
+
+      localStorage.setItem("histTimeSlice", 6);
 
       function populateTable() {
         var liveURL = "http://actestnodered.mybluemix.net/live/patient";
@@ -137,12 +165,25 @@
 
     function displayPatientCharts(patientIndex) {
       var livedata = JSON.parse(localStorage.getItem("livedata"));
-      var curRow   = livedata[patientIndex]
+      var curRow   = livedata[patientIndex];
+
       console.log("Time to load the chart for " + curRow['patientID']);
 
       localStorage.setItem("histPatientID", curRow['patientID']);
-      localStorage.setItem("histTimeSlice", 12);
 
+      populateChart();
+    }
+
+    function altDisplayPatientCharts() {
+      var hasPatientID = localStorage.getItem("histPatientID");
+      if(typeof hasPatientID === 'undefined') {
+        return;
+      }
+      if (hasPatientID == null) {
+        return;
+      }
+
+      console.log("I'm still in it.");
       populateChart();
     }
 
@@ -220,6 +261,31 @@
       packages: ['corechart']
     });
 
+    function clickHour1Btn() {
+      console.log("I'm in the hour-1-btn");
+      localStorage.setItem("histTimeSlice", 1);
+      altDisplayPatientCharts();
+    };
+    function clickHour3Btn() {
+      console.log("I'm in the hour-3-btn");
+      localStorage.setItem("histTimeSlice", 3);
+      altDisplayPatientCharts();
+    };
+    function clickHour6Btn() {
+      console.log("I'm in the hour-6-btn");
+      localStorage.setItem("histTimeSlice", 6);
+      altDisplayPatientCharts();
+    };
+    function clickHour12Btn() {
+      console.log("I'm in the hour-12-btn");
+      localStorage.setItem("histTimeSlice", 12);
+      altDisplayPatientCharts();
+    };
+    function clickHour24Btn() {
+      console.log("I'm in the hour-24-btn");
+      localStorage.setItem("histTimeSlice", 24);
+      altDisplayPatientCharts();
+    };
 
   </script>
 
